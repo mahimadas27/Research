@@ -6,7 +6,7 @@
   <title>Mahima Das - Kpop & ENHYPEN Inspired</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* Custom Enhypen/DAR MOON vibes */
+    /* DAR MOON / ENHYPEN aesthetic */
     body {
       background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
       color: #f5f5f5;
@@ -45,21 +45,31 @@
     .btn:hover {
       background: #eab308;
     }
+    #album-art {
+      width: 200px;
+      height: 200px;
+      margin: 20px 0;
+      border-radius: 12px;
+    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-start py-10 px-4">
 
-  <!-- Header -->
+  <!-- Header with GitHub Avatar -->
   <header class="text-center mb-10">
+    <img 
+      src="https://avatars.githubusercontent.com/u/243232732?s=400&u=350621b8428c50bb67aecc6379a2cd7abce8ab27&v=4"
+      alt="Mahima Das"
+      class="w-40 h-40 rounded-full mx-auto mb-4 border-4 border-yellow-400 shadow-lg">
     <h1 class="text-5xl font-bold mb-2">Mahima Das</h1>
-    <p class="text-xl text-gray-300">K-pop Enthusiast | ENHYPEN DAR MOON Vibes | Aspiring Researcher</p>
+    <p class="text-xl text-gray-300">K-pop Enthusiast | Learner | Aspiring Researcher</p>
   </header>
 
   <!-- About Me -->
   <section class="w-full max-w-3xl mb-10">
     <div class="section-title">About Me</div>
     <div class="card">
-      <p>Hello! I'm Mahima, a passionate psychology researcher and K-pop enthusiast. I love everything ENHYPEN, especially Sunghoon's DAR MOON aesthetic — moody, sleek, and mysterious. When I’m not diving into research papers or coding, I’m curating playlists, exploring K-pop visuals, and immersing myself in creative projects that combine my love for music, aesthetics, and science.</p>
+      <p>Hi, I’m Mahima, a psychology student from India who spends half her time decoding research methods and the other half pretending to be good at guitar. I sing sometimes, dream of becoming a DJ, and love K-pop, Rock music, Indie music, football, fashion, colour pencils, and beautifully written academic papers. I speak English, Hindi, Bengali, and can read Korean. I also have a diploma in Fine Arts. My favorite book and movie is The Perks of Being a Wallflower, and I aspire to be like Sam. My favorite football players are Messi and Son.</p>
     </div>
   </section>
 
@@ -72,12 +82,13 @@
     </div>
   </section>
 
-  <!-- Spotify Section -->
+  <!-- Spotify Now Playing Section -->
   <section class="w-full max-w-3xl mb-10">
-    <div class="section-title">Spotify</div>
+    <div class="section-title">🎵 Now Playing on Spotify</div>
     <div class="card flex flex-col items-center">
-      <p class="mb-4">Check out my music taste and K-pop playlists:</p>
-      <a href="https://open.spotify.com/" target="_blank" class="btn">Visit My Spotify</a>
+      <img id="album-art" src="" alt="Album Art">
+      <p id="track" style="font-size:1.2rem;"></p>
+      <a id="spotify-link" href="" target="_blank" style="color:#1DB954; font-weight:bold;">Open in Spotify</a>
     </div>
   </section>
 
@@ -85,6 +96,50 @@
   <footer class="mt-auto text-gray-400 text-sm text-center">
     &copy; 2025 Mahima Das | Made with 💛 ENHYPEN DAR MOON aesthetic
   </footer>
+
+  <!-- Spotify JS -->
+  <script>
+    const CLIENT_ID = '5979d6bbe8d3452eafd9e3f0a7f319bd';
+    const REDIRECT_URI = 'https://en.wikipedia.org/wiki/BTS';
+    const SCOPES = 'user-read-currently-playing';
+
+    function login() {
+      const authURL = `https://accounts.spotify.com/authorize?response_type=token&client_id=${CLIENT_ID}&scope=${encodeURIComponent(SCOPES)}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}`;
+      window.location = authURL;
+    }
+
+    function getTokenFromURL() {
+      const hash = window.location.hash.substring(1);
+      const params = new URLSearchParams(hash);
+      return params.get('access_token');
+    }
+
+    async function fetchNowPlaying(token) {
+      const res = await fetch('https://api.spotify.com/v1/me/player/currently-playing', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      if (res.status === 200) {
+        const data = await res.json();
+        document.getElementById('track').innerText = `${data.item.name} - ${data.item.artists[0].name}`;
+        document.getElementById('album-art').src = data.item.album.images[0].url;
+        document.getElementById('spotify-link').href = data.item.external_urls.spotify;
+      } else {
+        document.getElementById('track').innerText = 'Nothing is playing';
+        document.getElementById('album-art').src = '';
+        document.getElementById('spotify-link').href = '#';
+      }
+    }
+
+    window.onload = () => {
+      const token = getTokenFromURL();
+      if (!token) {
+        login();
+      } else {
+        fetchNowPlaying(token);
+        setInterval(() => fetchNowPlaying(token), 5000); // update every 5 sec
+      }
+    }
+  </script>
 
 </body>
 </html>
